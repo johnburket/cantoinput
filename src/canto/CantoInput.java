@@ -10,6 +10,9 @@ import javax.swing.text.*;
 /**
  * CantoInput - A simple Cantonese Input Method (IME)
  * Author: John Burket
+ *
+ * This file only contains the GUI code -- the interesting part is
+ * located in the data sets :-)
  */
 public class CantoInput extends KeyAdapter implements ActionListener {
     static private final String APP_NAME = "CantoInput";

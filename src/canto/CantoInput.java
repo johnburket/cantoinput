@@ -58,10 +58,10 @@ import javax.swing.KeyStroke;
  * non-Unicode encodings such as BIG5 or GB, while non-phonetic methods such as
  * Cangjie have a very steep learning curve.
  *
- * I originally wrote this program for my own personal use but decided to make it
- * freely available since I felt that other Cantonese speakers and learners might
- * also find it useful.  It’s still pretty basic, but hopefully I’ll have time to
- * add more features in the future.
+ * I originally wrote this program for my own personal use but decided to make
+ * it freely available since I felt that other Cantonese speakers and learners
+ * might also find it useful.  It's still pretty basic, but hopefully I'll have
+ * time to add more features in the future.
  */
 public class CantoInput extends KeyAdapter implements ActionListener {
 

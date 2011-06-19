@@ -1,0 +1,21 @@
+CantoInput - An Input Method (IME) for Cantonese.
+Author: John Burket
+
+CantoInput is a freely available, Unicode-based Chinese input method (IME)
+which allows the user to type both traditional and simplified characters
+using Cantonese romanization.  Both the Yale and Jyutping methods are
+supported.
+
+While there already exist excellent phonetic input methods based on Mandarin
+Pinyin pronunciation, there is a general lack of support for Cantonese.  As a
+Cantonese learner, I was frustrated by the difficulty of typing Chinese,
+especially Cantonese specific colloquial characters.  Most existing Cantonese
+input methods require a Chinese version of Windows and operate using
+non-Unicode encodings such as BIG5 or GB, while non-phonetic methods such as
+Cangjie have a very steep learning curve.
+
+I originally wrote this program for my own personal use but decided to make it
+freely available since I felt that other Cantonese speakers and learners might
+also find it useful.  It’s still pretty basic, but hopefully I’ll have time to
+add more features in the future.
+

@@ -1,22 +1,22 @@
 <project name="CantoInput" default="pkg" basedir=".">
     <description>CantoInput</description>
-    <property name="prgname" value="CantoInput"/>
-    <property name="version" value="1_10"/>
+    <property name="program" value="CantoInput"/>
+    <property name="version" value="1_20"/>
     <property name="src" location="src"/>
     <property name="data" location="data"/>
     <property name="dist" location="dist"/>
-
-    <target name="init">
-        <echo message="Building ${prgname} : version ${version}"/>
-        <mkdir dir="${dist}"/>
-    </target>
 
     <target name="clean">
         <delete dir="${dist}"/>
     </target>
 
+    <target name="init" depends="clean">
+        <echo message="Building ${program} : version ${version}"/>
+        <mkdir dir="${dist}"/>
+    </target>
+
     <target name="compile" depends="init">
-        <javac srcdir="${src}" destdir="${dist}" source="1.4" target="1.4" debug="off" includes="**/*.java"/>
+        <javac srcdir="${src}" destdir="${dist}" source="1.5" target="1.5" debug="off" includes="**/*.java"/>
     </target>
 
     <target name="pkg" depends="compile">
@@ -24,10 +24,10 @@
             <fileset dir="${data}"/>
         </copy>
 
-        <jar basedir="${dist}" destfile="${dist}/${prgname}.jar" manifest="${src}/Manifest.txt"/>
+        <jar basedir="${dist}" destfile="${dist}/${program}.jar" manifest="${src}/Manifest.txt"/>
 
         <exec executable="jar" dir="${dist}">
-            <arg line="-Mcvf ${prgname}-${version}.zip ${prgname}.jar"/>
+            <arg line="-Mcvf ${program}-${version}.zip ${program}.jar"/>
         </exec>
     </target>
 </project>

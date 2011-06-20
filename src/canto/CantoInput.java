@@ -65,11 +65,11 @@ import javax.swing.KeyStroke;
  */
 public class CantoInput extends KeyAdapter implements ActionListener {
 
-   private final String APP_NAME = "CantoInput";
-   private final String APP_NAME_AND_VERSION = APP_NAME + " 1.20";
-   private final String COPYRIGHT_MSG =
+   private static final String APP_NAME = "CantoInput";
+   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.20";
+   private static final String COPYRIGHT_MSG =
       "Copyright (C) 2011\nJohn Burket - jburket@gmail.com\n";
-   private final String CREDITS =
+   private static final String CREDITS =
       "This program may be freely distributed, and is\n" +
       "provided 'as is' without warranty of any kind.\n\n" +
       "Romanization is based on data from Aaron Chan's\n" +
@@ -83,48 +83,48 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       "Copyright (C) 1997, 1998 Paul Andrew Denisowski:\n" +
       "http://www.mandarintools.com/cedict.html\n\n";
 
-   private final String MENU_YALE = "Cantonese/Yale";
-   private final String MENU_JYUTPING = "Cantonese/Jyutping";
-   private final String MENU_PINYIN = "Mandarin/Pinyin";
-   private final String MENU_TRADITIONAL = "Traditional";
-   private final String MENU_SIMPLIFIED = "Simplified";
-   private final String MENU_CHOOSE_FONT = "Select Font";
-   private final String MENU_CUT = "Cut";
-   private final String MENU_COPY = "Copy";
-   private final String MENU_PASTE = "Paste";
-   private final String MENU_SELECT_ALL = "Select All";
-   private final String MENU_TRAD_TO_SIMP = "Convert Traditional to Simplified";
-   private final String MENU_SIMP_TO_TRAD = "Convert Simplified to Traditional";
-   private final String MENU_EXIT = "Exit";
-   private final String MENU_ABOUT = "About";
-   private final String MENU_TOGGLE_INPUT_MODE = "Toggle Chinese/English (Ctrl-Enter)";
-   private final String DATAFILE_YALE = "input-yale.utf-8";
-   private final String DATAFILE_JYUTPING = "input-jyutping.utf-8";
-   private final String DATAFILE_PINYIN = "input-pinyin.utf-8";
-   private final String DATAFILE_PUNCT = "punct.utf-8";
-   private final String DATAFILE_TRADSIMP = "trad-simp.utf-8";
-   private final String DATAFILE_SIMPTRAD = "simp-trad.utf-8";
-   private final String PREF_KEY_METHOD = "method";
-   private final String PREF_KEY_CHARSET = "charset";
-   private final String PREF_KEY_FONT = "font";
-   private final String PREF_KEY_FONT_SIZE = "font_size";
-   private final int DEFAULT_FONT_SIZE = 18;
+   private static final String MENU_YALE = "Cantonese/Yale";
+   private static final String MENU_JYUTPING = "Cantonese/Jyutping";
+   private static final String MENU_PINYIN = "Mandarin/Pinyin";
+   private static final String MENU_TRADITIONAL = "Traditional";
+   private static final String MENU_SIMPLIFIED = "Simplified";
+   private static final String MENU_CHOOSE_FONT = "Select Font";
+   private static final String MENU_CUT = "Cut";
+   private static final String MENU_COPY = "Copy";
+   private static final String MENU_PASTE = "Paste";
+   private static final String MENU_SELECT_ALL = "Select All";
+   private static final String MENU_TRAD_TO_SIMP = "Convert Traditional to Simplified";
+   private static final String MENU_SIMP_TO_TRAD = "Convert Simplified to Traditional";
+   private static final String MENU_EXIT = "Exit";
+   private static final String MENU_ABOUT = "About";
+   private static final String MENU_TOGGLE_INPUT_MODE = "Toggle Chinese/English (Ctrl-Enter)";
+   private static final String DATAFILE_YALE = "input-yale.utf-8";
+   private static final String DATAFILE_JYUTPING = "input-jyutping.utf-8";
+   private static final String DATAFILE_PINYIN = "input-pinyin.utf-8";
+   private static final String DATAFILE_PUNCT = "punct.utf-8";
+   private static final String DATAFILE_TRADSIMP = "trad-simp.utf-8";
+   private static final String DATAFILE_SIMPTRAD = "simp-trad.utf-8";
+   private static final String PREF_KEY_METHOD = "method";
+   private static final String PREF_KEY_CHARSET = "charset";
+   private static final String PREF_KEY_FONT = "font";
+   private static final String PREF_KEY_FONT_SIZE = "font_size";
+   private static final int DEFAULT_FONT_SIZE = 18;
 
    private JFrame frame;
-   private Font defaultChineseFont;
-   private List<String> availableChineseFonts = new ArrayList<String>();
    private JTextField inputTextField;
    private JTextField matchTextField;
    private JTextField pageNumTextField;
    private JTextArea textArea;
+   private int currentPageNumber = 0;
+   private boolean inInputMode = true;
+   private String currentCharacterSet = MENU_TRADITIONAL;
+   private Font defaultChineseFont;
+   private List<String> availableChineseFonts = new ArrayList<String>();
    private Map<String,String> currentChoiceMap = new HashMap<String,String>();
    private List<String> currentChoiceList = new ArrayList<String>();
    private Map<String,String> punctuationMap = new HashMap<String,String>();
    private Map<String,String> tradSimpMap = new HashMap<String,String>();
    private Map<String,String> simpTradMap = new HashMap<String,String>();
-   private int currentPageNumber = 0;
-   private boolean inInputMode = true;
-   private String currentCharacterSet = MENU_TRADITIONAL;
    private Properties prefs = new Properties();
 
    /**
@@ -586,7 +586,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       String text = textArea.getSelectedText();
       if (text == null || text.equals("")) {
          JOptionPane.showMessageDialog(
-            null,
+            frame,
             "Please select some text and try again.",
             "Convert Characters",
             JOptionPane.ERROR_MESSAGE);
@@ -594,7 +594,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       }
 
       int select = JOptionPane.showConfirmDialog(
-                      null,
+                      frame,
                       "The selected characters will be\n" +
                       "converted.  This operation cannot\n" +
                       "be undone!  Click OK to continue.",

@@ -66,7 +66,7 @@ import javax.swing.KeyStroke;
 public class CantoInput extends KeyAdapter implements ActionListener {
 
    private static final String APP_NAME = "CantoInput";
-   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.20";
+   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.22";
    private static final String COPYRIGHT_MSG =
       "Copyright (C) 2011\nJohn Burket - jburket@gmail.com\n";
    private static final String CREDITS =
@@ -206,10 +206,16 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       }
 
       if (currentChoiceList != null) {
-         if ((e.getKeyCode() == KeyEvent.VK_PAGE_DOWN || e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_DOWN || c == '=' || c == '+' || c == '.' || c == '>' || c == ']' || c == '}') && currentChoiceList.size() > ((currentPageNumber + 1) * 9)) {
+         if ((e.getKeyCode() == KeyEvent.VK_PAGE_DOWN || e.getKeyCode() == KeyEvent.VK_RIGHT ||
+              e.getKeyCode() == KeyEvent.VK_DOWN || c == '=' || c == '+' || c == '.' ||
+              c == '>' || c == ']' || c == '}') && currentChoiceList.size() > ((currentPageNumber + 1) * 9))
+         {
             currentPageNumber++;
          }
-         else if ((e.getKeyCode() == KeyEvent.VK_PAGE_UP || e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_UP || c == '-' || c == '_' || c == ',' || c == '<' || c == '[' || c == '{') && currentPageNumber > 0) {
+         else if ((e.getKeyCode() == KeyEvent.VK_PAGE_UP || e.getKeyCode() == KeyEvent.VK_LEFT ||
+                   e.getKeyCode() == KeyEvent.VK_UP || c == '-' || c == '_' || c == ',' ||
+                   c == '<' || c == '[' || c == '{') && currentPageNumber > 0)
+         {
             currentPageNumber--;
          }
          e.consume();
@@ -249,7 +255,10 @@ public class CantoInput extends KeyAdapter implements ActionListener {
             e.consume();
          }
       }
-      else if (currentChoiceList != null && (c == '-' || c == '_' || c == '=' || c == '+' || c == '.' || c == ',' || c == '<' || c == '>' || c == '[' || c == ']' || c == '{' || c == '}')) {
+      else if (currentChoiceList != null && (c == '-' || c == '_' || c == '=' || c == '+' ||
+               c == '.' || c == ',' || c == '<' || c == '>' || c == '[' || c == ']' ||
+               c == '{' || c == '}'))
+      {
          e.consume();
       }
       else if (punctuationMap.containsKey("" + c)) {
@@ -397,7 +406,10 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
       if (! prefs.getProperty(PREF_KEY_FONT, "").equals("")) {
          try {
-            defaultChineseFont = new Font(prefs.getProperty(PREF_KEY_FONT), Font.PLAIN, Integer.parseInt(prefs.getProperty(PREF_KEY_FONT_SIZE, "" + DEFAULT_FONT_SIZE)));
+            defaultChineseFont = new Font(
+               prefs.getProperty(PREF_KEY_FONT),
+               Font.PLAIN,
+               Integer.parseInt(prefs.getProperty(PREF_KEY_FONT_SIZE, "" + DEFAULT_FONT_SIZE)));
          }
          catch (Exception e) {
             defaultChineseFont = new Font("Monospaced", Font.PLAIN, DEFAULT_FONT_SIZE);
@@ -538,7 +550,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
                                 availableChineseFonts.toArray(),
                                 defaultChineseFont.getFontName());
 
-      if ((font != null) && (font.length() > 0)) {
+      if (font != null && font.length() > 0) {
          Object[] sizeChoices = { "8","9","10","11","12","14","16","18",
                                   "20","22","24","26","28","36","48" };
 

@@ -66,7 +66,7 @@ import javax.swing.KeyStroke;
 public class CantoInput extends KeyAdapter implements ActionListener {
 
    private static final String APP_NAME = "CantoInput";
-   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.22";
+   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.23";
    private static final String COPYRIGHT_MSG =
       "Copyright (C) 2011\nJohn Burket - jburket@gmail.com\n";
    private static final String CREDITS =
@@ -110,22 +110,25 @@ public class CantoInput extends KeyAdapter implements ActionListener {
    private static final String PREF_KEY_FONT_SIZE = "font_size";
    private static final int DEFAULT_FONT_SIZE = 18;
 
-   private JFrame frame;
-   private JTextField inputTextField;
-   private JTextField matchTextField;
-   private JTextField pageNumTextField;
-   private JTextArea textArea;
+   // GUI components
+   private final JFrame frame = new JFrame(APP_NAME);
+   private final JTextField inputTextField = new JTextField();
+   private final JTextField matchTextField = new JTextField();
+   private final JTextField pageNumTextField = new JTextField();
+   private final JTextArea textArea = new JTextArea();
+
+   // State data
    private int currentPageNumber = 0;
    private boolean inInputMode = true;
    private String currentCharacterSet = MENU_TRADITIONAL;
    private Font defaultChineseFont;
    private List<String> availableChineseFonts = new ArrayList<String>();
-   private Map<String,String> currentChoiceMap = new HashMap<String,String>();
    private List<String> currentChoiceList = new ArrayList<String>();
-   private Map<String,String> punctuationMap = new HashMap<String,String>();
-   private Map<String,String> tradSimpMap = new HashMap<String,String>();
-   private Map<String,String> simpTradMap = new HashMap<String,String>();
-   private Properties prefs = new Properties();
+   private Map<String,String> currentChoiceMap = new HashMap<String,String>();
+   private Map<String,String> punctuationMap;
+   private Map<String,String> tradSimpMap;
+   private Map<String,String> simpTradMap;
+   private Properties prefs;
 
    /**
     * Constructor.  Initialize data files.
@@ -144,8 +147,8 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * romanization, traditional to simplified character mappings, and Chinese
     * punctuation symbols.
     *
-    * @param filename  Filename containing data to parse
-    * @return          Map containing data from file
+    * @param filename - Filename containing data to parse
+    * @return - Map containing data from file
     */
    private Map<String,String> readDataFile(String filename) {
       Map<String,String> choices = new HashMap<String,String>();
@@ -309,7 +312,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
    /**
     * Populate currentChoiceList with traditional or simplified characters
-    * depending on settings.
+    * depending on settings.  Put compound words at the beginning of the list.
     */
    private void populateCurrentChoiceList(String str) {
       String choices = currentChoiceMap.get(str);
@@ -337,8 +340,6 @@ public class CantoInput extends KeyAdapter implements ActionListener {
             tok = simp;
          }
          if (checkSet.add(tok)) {
-            // Move multiple character entries to beginning of list while
-            // preserving order in data file
             if (tok.length() > 1) {
                choiceList1.add(tok);
             }
@@ -390,12 +391,10 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * Find Chinese capable fonts.
     */
    private void setDefaultChineseFont() {
-      Font[] allFonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
-      String chineseSample = "\u4e00";
       String goodFont = null;
 
-      for (Font font : allFonts) {
-         if (font.canDisplayUpTo(chineseSample) == -1) { 
+      for (Font font : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
+         if (font.canDisplayUpTo("\u4e00") == -1) {
             String fontName = font.getFontName();
             availableChineseFonts.add(fontName);
             if (fontName.toLowerCase().startsWith("simsun")) {
@@ -550,53 +549,55 @@ public class CantoInput extends KeyAdapter implements ActionListener {
                                 availableChineseFonts.toArray(),
                                 defaultChineseFont.getFontName());
 
-      if (font != null && font.length() > 0) {
-         Object[] sizeChoices = { "8","9","10","11","12","14","16","18",
-                                  "20","22","24","26","28","36","48" };
-
-         String size = (String) JOptionPane.showInputDialog(
-                                   null,
-                                   "Font Size:",
-                                   "Select Font Size",
-                                   JOptionPane.PLAIN_MESSAGE,
-                                   null,
-                                   sizeChoices,
-                                   "" + DEFAULT_FONT_SIZE);
-
-         if (size == null || size.trim().equals("")) {
-            return;
-         }
-
-         int newFontSize;
-         try {
-            newFontSize = Integer.parseInt(size);
-         }
-         catch (Exception ex) {
-            newFontSize = DEFAULT_FONT_SIZE;
-            JOptionPane.showMessageDialog(null, "Invalid font size - using default");
-         }
-
-         defaultChineseFont = new Font(font, Font.PLAIN, newFontSize);
-         inputTextField.setFont(defaultChineseFont);
-         matchTextField.setFont(defaultChineseFont);
-         pageNumTextField.setFont(defaultChineseFont);
-         textArea.setFont(defaultChineseFont);
-         setPreferredSizes();
-         frame.pack();
-         saveUserPrefs(PREF_KEY_FONT, font);
-         saveUserPrefs(PREF_KEY_FONT_SIZE, "" + newFontSize);
+      if (font == null || font.length() == 0) {
+         return;
       }
+
+      Object[] sizeChoices = { "8","9","10","11","12","14","16","18",
+                               "20","22","24","26","28","36","48" };
+
+      String size = (String) JOptionPane.showInputDialog(
+                                null,
+                                "Font Size:",
+                                "Select Font Size",
+                                JOptionPane.PLAIN_MESSAGE,
+                                null,
+                                sizeChoices,
+                                "" + DEFAULT_FONT_SIZE);
+
+      if (size == null || size.trim().equals("")) {
+         return;
+      }
+
+      int newFontSize;
+      try {
+         newFontSize = Integer.parseInt(size);
+      }
+      catch (Exception ex) {
+         newFontSize = DEFAULT_FONT_SIZE;
+         JOptionPane.showMessageDialog(null, "Invalid font size - using default");
+      }
+
+      defaultChineseFont = new Font(font, Font.PLAIN, newFontSize);
+      inputTextField.setFont(defaultChineseFont);
+      matchTextField.setFont(defaultChineseFont);
+      pageNumTextField.setFont(defaultChineseFont);
+      textArea.setFont(defaultChineseFont);
+      setPreferredSizes();
+      frame.pack();
+      saveUserPrefs(PREF_KEY_FONT, font);
+      saveUserPrefs(PREF_KEY_FONT_SIZE, "" + newFontSize);
    }
 
    /**
     * Convert selected text from traditional to simplified characters or
     * vice-versa.
     *
-    * @param toSimplified  if true convert trad->simp, otherwise simp->trad
+    * @param toSimplified - if true convert trad->simp, otherwise simp->trad
     */
    private void convertTradSimp(boolean toSimplified) {
-      String text = textArea.getSelectedText();
-      if (text == null || text.equals("")) {
+      String selectedText = textArea.getSelectedText();
+      if (selectedText == null || selectedText.equals("")) {
          JOptionPane.showMessageDialog(
             frame,
             "Please select some text and try again.",
@@ -621,12 +622,12 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       Map<String,String> map = toSimplified ? tradSimpMap : simpTradMap;
       StringBuilder sb = new StringBuilder();
 
-      for (int i = 0; i < text.length(); i++) {
-         if (map.get("" + text.charAt(i)) != null) {
-            sb.append(map.get("" + text.charAt(i)));
+      for (int i = 0; i < selectedText.length(); i++) {
+         if (map.get("" + selectedText.charAt(i)) != null) {
+            sb.append(map.get("" + selectedText.charAt(i)));
          }
          else {
-            sb.append(text.charAt(i));
+            sb.append(selectedText.charAt(i));
          }
       }
 
@@ -688,20 +689,14 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * Create the top menu bar.
     */
    private JMenuBar createMenuBar() {
-      JMenuBar menuBar;
-      JMenu menu;
-      JMenuItem menuItem;
-      JRadioButtonMenuItem rbMenuItem;
+      JMenuBar menuBar = new JMenuBar();
+      JMenu menu = new JMenu("Settings");
+      ButtonGroup group = new ButtonGroup();
 
-      menuBar = new JMenuBar();
-
-      menu = new JMenu("Settings");
       menu.setMnemonic(KeyEvent.VK_S);
       menuBar.add(menu);
 
-      ButtonGroup group = new ButtonGroup();
-
-      rbMenuItem = new JRadioButtonMenuItem(MENU_YALE);
+      JRadioButtonMenuItem rbMenuItem = new JRadioButtonMenuItem(MENU_YALE);
       if (prefs.getProperty(PREF_KEY_METHOD, MENU_YALE).equals(MENU_YALE)) {
          rbMenuItem.setSelected(true);
          currentChoiceMap.clear();
@@ -753,7 +748,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       menu.add(rbMenuItem);
 
       menu.addSeparator();
-      menuItem = new JMenuItem(MENU_TOGGLE_INPUT_MODE);
+      JMenuItem menuItem = new JMenuItem(MENU_TOGGLE_INPUT_MODE);
       menuItem.addActionListener(this);
       menu.add(menuItem);
 
@@ -812,11 +807,8 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * when using certain fonts.
     */
    private void setPreferredSizes() {
-      FontMetrics metrics;
-      int width;
-
-      metrics = matchTextField.getFontMetrics(defaultChineseFont);
-      width = metrics.stringWidth("9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00");
+      FontMetrics metrics = matchTextField.getFontMetrics(defaultChineseFont);
+      int width = metrics.stringWidth("9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00 9. \u4e00");
       matchTextField.setPreferredSize(new Dimension(width, metrics.getHeight()));
 
       metrics = inputTextField.getFontMetrics(defaultChineseFont);
@@ -832,38 +824,31 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * Create the GUI and show it.
     */
    private void createAndShowGUI() {
-      // Create and set up the window
       loadUserPrefs();
       setDefaultChineseFont();
-      frame = new JFrame(APP_NAME);
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       Container pane = frame.getContentPane();
       pane.setLayout(new BorderLayout());
 
-      inputTextField = new JTextField();
       inputTextField.setEditable(false);
       inputTextField.setFont(defaultChineseFont);
       inputTextField.setBorder(BorderFactory.createLineBorder(Color.gray));
 
-      matchTextField = new JTextField();
       matchTextField.setEditable(false);
       matchTextField.setFont(defaultChineseFont);
       matchTextField.setBorder(BorderFactory.createLineBorder(Color.gray));
 
-      pageNumTextField = new JTextField();
       pageNumTextField.setEditable(false);
       pageNumTextField.setFont(defaultChineseFont);
       pageNumTextField.setHorizontalAlignment(JTextField.CENTER);
       pageNumTextField.setBorder(BorderFactory.createEmptyBorder());
 
-      // Set realistic width for components
       setPreferredSizes();
 
       JPanel morePanel = new JPanel();
       morePanel.add(pageNumTextField);
       morePanel.setBorder(BorderFactory.createLineBorder(Color.gray));
 
-      textArea = new JTextArea();
       textArea.addKeyListener(this);
       textArea.setFont(defaultChineseFont);
       textArea.setLineWrap(true);
@@ -880,11 +865,9 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       innerPane.add(morePanel, BorderLayout.EAST);
       pane.add(innerPane, BorderLayout.SOUTH);
 
-      // Create the menu
       frame.setJMenuBar(createMenuBar());
       addPopupMenu();
 
-      // Display the window
       frame.pack();
       frame.setVisible(true);
    }

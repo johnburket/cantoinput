@@ -66,7 +66,7 @@ import javax.swing.KeyStroke;
 public class CantoInput extends KeyAdapter implements ActionListener {
 
    private static final String APP_NAME = "CantoInput";
-   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.23";
+   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.25";
    private static final String COPYRIGHT_MSG =
       "Copyright (C) 2011\nJohn Burket - jburket@gmail.com\n";
    private static final String CREDITS =
@@ -517,10 +517,10 @@ public class CantoInput extends KeyAdapter implements ActionListener {
          textArea.selectAll();
       }
       else if (source.getText().equals(MENU_TRAD_TO_SIMP)) {
-         convertTradSimp(true);
+         convertTradSimp(tradSimpMap);
       }
       else if (source.getText().equals(MENU_SIMP_TO_TRAD)) {
-         convertTradSimp(false);
+         convertTradSimp(simpTradMap);
       }
       else if (source.getText().equals(MENU_ABOUT)) {
          JOptionPane.showMessageDialog(null, APP_NAME_AND_VERSION + "\n" + COPYRIGHT_MSG + "\n" + CREDITS);
@@ -593,9 +593,9 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * Convert selected text from traditional to simplified characters or
     * vice-versa.
     *
-    * @param toSimplified - if true convert trad->simp, otherwise simp->trad
+    * @param conversionMap - Map which contains either trad->simp or simp->trad data
     */
-   private void convertTradSimp(boolean toSimplified) {
+   private void convertTradSimp(Map<String,String> conversionMap) {
       String selectedText = textArea.getSelectedText();
       if (selectedText == null || selectedText.equals("")) {
          JOptionPane.showMessageDialog(
@@ -619,12 +619,11 @@ public class CantoInput extends KeyAdapter implements ActionListener {
          return;
       }
 
-      Map<String,String> map = toSimplified ? tradSimpMap : simpTradMap;
       StringBuilder sb = new StringBuilder();
 
       for (int i = 0; i < selectedText.length(); i++) {
-         if (map.get("" + selectedText.charAt(i)) != null) {
-            sb.append(map.get("" + selectedText.charAt(i)));
+         if (conversionMap.get("" + selectedText.charAt(i)) != null) {
+            sb.append(conversionMap.get("" + selectedText.charAt(i)));
          }
          else {
             sb.append(selectedText.charAt(i));

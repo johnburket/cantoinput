@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.StringTokenizer;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
@@ -143,6 +142,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * Parse the data files and return a Map of the data.
     * The Map key is the first token in a line from the file (up to the first
     * space) and the Map value is the remainder of the line after the space.
+    * If the same key occurs multiple times, the values will be merged.
     * These data files contain Chinese characters/words and the corresponding
     * romanization, traditional to simplified character mappings, and Chinese
     * punctuation symbols.
@@ -151,36 +151,24 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * @return - Map containing data from file
     */
    private Map<String,String> readDataFile(String filename) {
-      Map<String,String> choices = new HashMap<String,String>();
+      Map<String,String> map = new HashMap<String,String>();
 
       try {
          BufferedReader in = new BufferedReader(
             new InputStreamReader(CantoInput.class.getResourceAsStream("/" + filename), "UTF-8"));
 
          for (String line; (line = in.readLine()) != null; ) {
-            try {
-               StringTokenizer st = new StringTokenizer(line);
-               String key = st.nextToken();
-               if (st.hasMoreTokens()) {
-                  String val = st.nextToken("\r\n").trim();
-                  if (choices.get(key) != null) {
-                     String lst = choices.get(key);
-                     choices.put(key, lst + " " + val);
-                  }
-                  else {
-                     choices.put(key, val);
-                  }
-               }
-            }
-            catch (Exception e) {
-            }
+            String s[] = line.split("\\s+", 2);
+            String key = s[0];
+            String val = map.get(key) != null ? map.get(key) + " " + s[1] : s[1];
+            map.put(key, val);
          }
       }
       catch (Exception e) {
          e.printStackTrace();
       }
 
-      return choices;
+      return map;
    }
 
    /**
@@ -325,26 +313,25 @@ public class CantoInput extends KeyAdapter implements ActionListener {
          return;
       }
 
-      for (StringTokenizer st = new StringTokenizer(choices); st.hasMoreTokens(); ) {
-         String tok = st.nextToken();
+      for (String entry : choices.split("\\s+")) {
          if (currentCharacterSet.equals(MENU_SIMPLIFIED)) {
             String simp = "";
-            for (int j = 0; j < tok.length(); j++) {
-               if (tradSimpMap.get("" + tok.charAt(j)) != null) {
-                  simp += tradSimpMap.get("" + tok.charAt(j));
+            for (int j = 0; j < entry.length(); j++) {
+               if (tradSimpMap.get("" + entry.charAt(j)) != null) {
+                  simp += tradSimpMap.get("" + entry.charAt(j));
                }
                else {
-                  simp += tok.charAt(j);
+                  simp += entry.charAt(j);
                }
             }
-            tok = simp;
+            entry = simp;
          }
-         if (checkSet.add(tok)) {
-            if (tok.length() > 1) {
-               choiceList1.add(tok);
+         if (checkSet.add(entry)) {
+            if (entry.length() > 1) {
+               choiceList1.add(entry);
             }
             else {
-               choiceList2.add(tok);
+               choiceList2.add(entry);
             }
          }
       }

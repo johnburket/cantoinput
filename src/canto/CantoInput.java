@@ -312,7 +312,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
    /**
     * Populate currentChoiceList with traditional or simplified characters
-    * depending on settings.  Put compound words at the beginning of the list.
+    * depending on settings.  Compound words are put at the beginning.
     */
    private void populateCurrentChoiceList(String str) {
       String choices = currentChoiceMap.get(str);
@@ -464,71 +464,71 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * Action listener for menu items.
     */
    public void actionPerformed(ActionEvent e) {
-      JMenuItem source = (JMenuItem) e.getSource();
+      String source = ((JMenuItem) e.getSource()).getText();
 
-      if (source.getText().equals(MENU_YALE)) {
+      if (MENU_YALE.equals(source)) {
          resetStateData();
          currentChoiceMap.clear();
          currentChoiceMap = readDataFile(DATAFILE_YALE);
          saveUserPrefs(PREF_KEY_METHOD, MENU_YALE);
       }
-      else if (source.getText().equals(MENU_JYUTPING)) {
+      else if (MENU_JYUTPING.equals(source)) {
          resetStateData();
          currentChoiceMap.clear();
          currentChoiceMap = readDataFile(DATAFILE_JYUTPING);
          saveUserPrefs(PREF_KEY_METHOD, MENU_JYUTPING);
       }
-      else if (source.getText().equals(MENU_PINYIN)) {
+      else if (MENU_PINYIN.equals(source)) {
          resetStateData();
          currentChoiceMap.clear();
          currentChoiceMap = readDataFile(DATAFILE_PINYIN);
          saveUserPrefs(PREF_KEY_METHOD, MENU_PINYIN);
       }
-      else if (source.getText().equals(MENU_TRADITIONAL)) {
+      else if (MENU_TRADITIONAL.equals(source)) {
          resetStateData();
          currentCharacterSet = MENU_TRADITIONAL;
          saveUserPrefs(PREF_KEY_CHARSET, MENU_TRADITIONAL);
       }
-      else if (source.getText().equals(MENU_SIMPLIFIED)) {
+      else if (MENU_SIMPLIFIED.equals(source)) {
          resetStateData();
          currentCharacterSet = MENU_SIMPLIFIED;
          saveUserPrefs(PREF_KEY_CHARSET, MENU_SIMPLIFIED);
       }
-      else if (source.getText().equals(MENU_TOGGLE_INPUT_MODE)) {
+      else if (MENU_TOGGLE_INPUT_MODE.equals(source)) {
          resetStateData();
          inInputMode = ! inInputMode;
       }
-      else if (source.getText().equals(MENU_CHOOSE_FONT)) {
+      else if (MENU_CHOOSE_FONT.equals(source)) {
          setFontConfig();
       }
-      else if (source.getText().equals(MENU_EXIT)) {
+      else if (MENU_EXIT.equals(source)) {
          System.exit(0);
       }
-      else if (source.getText().equals(MENU_CUT)) {
+      else if (MENU_CUT.equals(source)) {
          textArea.cut();
       }
-      else if (source.getText().equals(MENU_COPY)) {
+      else if (MENU_COPY.equals(source)) {
          textArea.copy();
       }
-      else if (source.getText().equals(MENU_PASTE)) {
+      else if (MENU_PASTE.equals(source)) {
          textArea.paste();
       }
-      else if (source.getText().equals(MENU_SELECT_ALL)) {
+      else if (MENU_SELECT_ALL.equals(source)) {
          textArea.selectAll();
       }
-      else if (source.getText().equals(MENU_TRAD_TO_SIMP)) {
+      else if (MENU_TRAD_TO_SIMP.equals(source)) {
          convertTradSimp(tradSimpMap);
       }
-      else if (source.getText().equals(MENU_SIMP_TO_TRAD)) {
+      else if (MENU_SIMP_TO_TRAD.equals(source)) {
          convertTradSimp(simpTradMap);
       }
-      else if (source.getText().equals(MENU_ABOUT)) {
+      else if (MENU_ABOUT.equals(source)) {
          JOptionPane.showMessageDialog(null, APP_NAME_AND_VERSION + "\n" + COPYRIGHT_MSG + "\n" + CREDITS);
       }
    }
 
    /**
-    * Set font configuration.
+    * Present dialog for updating font config settings.
     */
    private void setFontConfig() {
       if (availableChineseFonts == null || availableChineseFonts.size() == 0) {

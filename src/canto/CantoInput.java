@@ -67,7 +67,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
    private static final String APP_NAME = "CantoInput";
    private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.25";
    private static final String COPYRIGHT_MSG =
-      "Copyright (C) 2011\nJohn Burket - jburket@gmail.com\n";
+      "Copyright (C) 2011 John Burket\n";
    private static final String CREDITS =
       "This program may be freely distributed, and is\n" +
       "provided 'as is' without warranty of any kind.\n\n" +
@@ -155,7 +155,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
       try {
          BufferedReader in = new BufferedReader(
-            new InputStreamReader(CantoInput.class.getResourceAsStream("/" + filename), "UTF-8"));
+            new InputStreamReader(this.getClass().getResourceAsStream("/" + filename), "UTF-8"));
 
          for (String line; (line = in.readLine()) != null; ) {
             String s[] = line.split("\\s+", 2);

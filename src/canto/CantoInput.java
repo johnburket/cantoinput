@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeMap;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
@@ -65,7 +66,7 @@ import javax.swing.KeyStroke;
 public class CantoInput extends KeyAdapter implements ActionListener {
 
    private static final String APP_NAME = "CantoInput";
-   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.30";
+   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.32";
    private static final String COPYRIGHT_MSG =
       "Author: John Burket\n";
    private static final String CREDITS =
@@ -123,7 +124,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
    private Font defaultChineseFont;
    private List<String> availableChineseFonts = new ArrayList<String>();
    private List<String> currentChoiceList = new ArrayList<String>();
-   private Map<String,String> currentChoiceMap = new HashMap<String,String>();
+   private Map<String,String> currentChoiceMap = new TreeMap<String,String>();
    private Map<String,String> punctuationMap;
    private Map<String,String> tradSimpMap;
    private Map<String,String> simpTradMap;
@@ -133,9 +134,9 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * Constructor.  Initialize data files.
     */
    public CantoInput() {
-      punctuationMap = readDataFile(DATAFILE_PUNCT);
-      tradSimpMap = readDataFile(DATAFILE_TRADSIMP);
-      simpTradMap = readDataFile(DATAFILE_SIMPTRAD);
+      punctuationMap = readDataFile(DATAFILE_PUNCT, false);
+      tradSimpMap = readDataFile(DATAFILE_TRADSIMP, false);
+      simpTradMap = readDataFile(DATAFILE_SIMPTRAD, false);
    }
 
    /**
@@ -145,14 +146,16 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * If the same key occurs multiple times, the values will be merged.
     * These data files contain Chinese characters/words and the corresponding
     * romanization, traditional to simplified character mappings, and Chinese
-    * punctuation symbols.
+    * punctuation symbols.  In order to facilitate partial matching on the
+    * returned data, specify "true" for the sortedMap parameter.
     *
     * @param filename - Filename containing data to parse
+    * @param sortedMap - If true, return a sorted map
     * @return - Map containing data from file
     */
-   private Map<String,String> readDataFile(String filename) {
-      Map<String,String> map = new HashMap<String,String>();
-
+   private Map<String,String> readDataFile(String filename, boolean sortedMap) {
+      Map<String,String> map = sortedMap ? new TreeMap<String,String>()
+                                         : new HashMap<String,String>();
       try {
          BufferedReader in = new BufferedReader(
             new InputStreamReader(this.getClass().getResourceAsStream("/" + filename), "UTF-8"));
@@ -272,7 +275,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
       populateCurrentChoiceList(inputTextField.getText());
 
-      if (currentChoiceList != null) {
+      if (currentChoiceList != null && currentChoiceList.size() > 0) {
          updateMatches();
 
          if (c >= '1' && c <= '9') {
@@ -300,44 +303,41 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
    /**
     * Populate currentChoiceList with traditional or simplified characters
-    * depending on settings.  Compound words are put at the beginning.
+    * depending on settings.  Exact matches are put at the beginning of the
+    * list and partial matches are put at the end.
     */
-   private void populateCurrentChoiceList(String str) {
-      String choices = currentChoiceMap.get(str);
-      List<String> choiceList1 = new ArrayList<String>();
-      List<String> choiceList2 = new ArrayList<String>();
-      Set<String> checkSet = new HashSet<String>();
+   private void populateCurrentChoiceList(String input) {
+      List<String> choiceList = new ArrayList<String>();
+      Set<String> dupeSet = new HashSet<String>();
 
-      if (choices == null) {
+      if (input == null || input.equals("")) {
          currentChoiceList = null;
          return;
       }
 
-      for (String entry : choices.split("\\s+")) {
-         if (currentCharacterSet.equals(MENU_SIMPLIFIED)) {
-            String simp = "";
-            for (int j = 0; j < entry.length(); j++) {
-               if (tradSimpMap.get("" + entry.charAt(j)) != null) {
-                  simp += tradSimpMap.get("" + entry.charAt(j));
+      Map<String,String> map = ((TreeMap) currentChoiceMap).subMap(input, input + "zzz");
+
+      for (String val : map.values()) {
+         for (String choice : val.split("\\s+")) {
+            if (currentCharacterSet.equals(MENU_SIMPLIFIED)) {
+               String simp = "";
+               for (int i = 0; i < choice.length(); i++) {
+                  if (tradSimpMap.get("" + choice.charAt(i)) != null) {
+                     simp += tradSimpMap.get("" + choice.charAt(i));
+                  }
+                  else {
+                     simp += choice.charAt(i);
+                  }
                }
-               else {
-                  simp += entry.charAt(j);
-               }
+               choice = simp;
             }
-            entry = simp;
-         }
-         if (checkSet.add(entry)) {
-            if (entry.length() > 1) {
-               choiceList1.add(entry);
-            }
-            else {
-               choiceList2.add(entry);
+            if (dupeSet.add(choice)) {
+               choiceList.add(choice);
             }
          }
       }
 
-      choiceList1.addAll(choiceList2);
-      currentChoiceList = choiceList1;
+      currentChoiceList = choiceList;
    }
 
    /**
@@ -456,19 +456,19 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       if (MENU_YALE.equals(source)) {
          resetStateData();
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_YALE);
+         currentChoiceMap = readDataFile(DATAFILE_YALE, true);
          saveUserPrefs(PREF_KEY_METHOD, MENU_YALE);
       }
       else if (MENU_JYUTPING.equals(source)) {
          resetStateData();
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_JYUTPING);
+         currentChoiceMap = readDataFile(DATAFILE_JYUTPING, true);
          saveUserPrefs(PREF_KEY_METHOD, MENU_JYUTPING);
       }
       else if (MENU_PINYIN.equals(source)) {
          resetStateData();
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_PINYIN);
+         currentChoiceMap = readDataFile(DATAFILE_PINYIN, true);
          saveUserPrefs(PREF_KEY_METHOD, MENU_PINYIN);
       }
       else if (MENU_TRADITIONAL.equals(source)) {
@@ -686,7 +686,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       if (prefs.getProperty(PREF_KEY_METHOD, MENU_YALE).equals(MENU_YALE)) {
          rbMenuItem.setSelected(true);
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_YALE);
+         currentChoiceMap = readDataFile(DATAFILE_YALE, true);
       }
       rbMenuItem.addActionListener(this);
       group.add(rbMenuItem);
@@ -696,7 +696,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       if (prefs.getProperty(PREF_KEY_METHOD, MENU_YALE).equals(MENU_JYUTPING)) {
          rbMenuItem.setSelected(true);
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_JYUTPING);
+         currentChoiceMap = readDataFile(DATAFILE_JYUTPING, true);
       }
       rbMenuItem.addActionListener(this);
       group.add(rbMenuItem);
@@ -706,7 +706,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       if (prefs.getProperty(PREF_KEY_METHOD, MENU_YALE).equals(MENU_PINYIN)) {
          rbMenuItem.setSelected(true);
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_PINYIN);
+         currentChoiceMap = readDataFile(DATAFILE_PINYIN, true);
       }
       rbMenuItem.addActionListener(this);
       group.add(rbMenuItem);

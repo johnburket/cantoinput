@@ -66,7 +66,7 @@ import javax.swing.KeyStroke;
 public class CantoInput extends KeyAdapter implements ActionListener {
 
    private static final String APP_NAME = "CantoInput";
-   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.32";
+   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.33";
    private static final String COPYRIGHT_MSG =
       "Author: John Burket\n";
    private static final String CREDITS =
@@ -303,8 +303,9 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
    /**
     * Populate currentChoiceList with traditional or simplified characters
-    * depending on settings.  Exact matches are put at the beginning of the
-    * list and partial matches are put at the end.
+    * depending on settings.  All words which start with the input string are
+    * placed into the resultant list: exact matches are put at the beginning of
+    * the list, followed by partial matches in the order of the closest match.
     */
    private void populateCurrentChoiceList(String input) {
       List<String> choiceList = new ArrayList<String>();
@@ -320,16 +321,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       for (String val : map.values()) {
          for (String choice : val.split("\\s+")) {
             if (currentCharacterSet.equals(MENU_SIMPLIFIED)) {
-               String simp = "";
-               for (int i = 0; i < choice.length(); i++) {
-                  if (tradSimpMap.get("" + choice.charAt(i)) != null) {
-                     simp += tradSimpMap.get("" + choice.charAt(i));
-                  }
-                  else {
-                     simp += choice.charAt(i);
-                  }
-               }
-               choice = simp;
+               choice = convertTradSimp(choice, tradSimpMap);
             }
             if (dupeSet.add(choice)) {
                choiceList.add(choice);
@@ -504,10 +496,10 @@ public class CantoInput extends KeyAdapter implements ActionListener {
          textArea.selectAll();
       }
       else if (MENU_TRAD_TO_SIMP.equals(source)) {
-         convertTradSimp(tradSimpMap);
+         convertSelected(tradSimpMap);
       }
       else if (MENU_SIMP_TO_TRAD.equals(source)) {
-         convertTradSimp(simpTradMap);
+         convertSelected(simpTradMap);
       }
       else if (MENU_ABOUT.equals(source)) {
          JOptionPane.showMessageDialog(null, APP_NAME_AND_VERSION + "\n" + COPYRIGHT_MSG + "\n" + CREDITS);
@@ -577,12 +569,34 @@ public class CantoInput extends KeyAdapter implements ActionListener {
    }
 
    /**
-    * Convert selected text from traditional to simplified characters or
-    * vice-versa.
+    * Convert String from traditional to simplified characters or vice-versa.
+    *
+    * @param str - String to convert
+    * @param conversionMap - Map which contains either trad->simp or simp->trad data
+    * @return - String containing converted text
+    */
+   private String convertTradSimp(String str, Map<String,String> conversionMap) {
+      StringBuilder sb = new StringBuilder();
+
+      for (int i = 0; i < str.length(); i++) {
+         if (conversionMap.get("" + str.charAt(i)) != null) {
+            sb.append(conversionMap.get("" + str.charAt(i)));
+         }
+         else {
+            sb.append(str.charAt(i));
+         }
+      }
+
+      return sb.toString();
+   }
+
+   /**
+    * Convert selected text in the GUI from traditional to simplified
+    * characters or vice-versa.
     *
     * @param conversionMap - Map which contains either trad->simp or simp->trad data
     */
-   private void convertTradSimp(Map<String,String> conversionMap) {
+   private void convertSelected(Map<String,String> conversionMap) {
       String selectedText = textArea.getSelectedText();
       if (selectedText == null || selectedText.equals("")) {
          JOptionPane.showMessageDialog(
@@ -606,18 +620,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
          return;
       }
 
-      StringBuilder sb = new StringBuilder();
-
-      for (int i = 0; i < selectedText.length(); i++) {
-         if (conversionMap.get("" + selectedText.charAt(i)) != null) {
-            sb.append(conversionMap.get("" + selectedText.charAt(i)));
-         }
-         else {
-            sb.append(selectedText.charAt(i));
-         }
-      }
-
-      textArea.replaceSelection(sb.toString());
+      textArea.replaceSelection(convertTradSimp(selectedText, conversionMap));
    }
 
    /**

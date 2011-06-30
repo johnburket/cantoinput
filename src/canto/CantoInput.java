@@ -66,7 +66,7 @@ import javax.swing.KeyStroke;
 public class CantoInput extends KeyAdapter implements ActionListener {
 
    private static final String APP_NAME = "CantoInput";
-   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.33";
+   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.35";
    private static final String COPYRIGHT_MSG =
       "Author: John Burket\n";
    private static final String CREDITS =
@@ -134,28 +134,34 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * Constructor.  Initialize data files.
     */
    public CantoInput() {
-      punctuationMap = readDataFile(DATAFILE_PUNCT, false);
-      tradSimpMap = readDataFile(DATAFILE_TRADSIMP, false);
-      simpTradMap = readDataFile(DATAFILE_SIMPTRAD, false);
+      punctuationMap = readDataFile(DATAFILE_PUNCT);
+      tradSimpMap = readDataFile(DATAFILE_TRADSIMP);
+      simpTradMap = readDataFile(DATAFILE_SIMPTRAD);
    }
 
    /**
-    * Parse the data files and return a Map of the data.
+    * Parse CantoInput data files and return a Map of the data.
     * The Map key is the first token in a line from the file (up to the first
     * space) and the Map value is the remainder of the line after the space.
     * If the same key occurs multiple times, the values will be merged.
     * These data files contain Chinese characters/words and the corresponding
     * romanization, traditional to simplified character mappings, and Chinese
-    * punctuation symbols.  In order to facilitate partial matching on the
-    * returned data, specify "true" for the sortedMap parameter.
+    * punctuation symbols.  To facilitate partial data matching, a TreeMap
+    * will be created for the input method lookup files.
     *
     * @param filename - Filename containing data to parse
-    * @param sortedMap - If true, return a sorted map
     * @return - Map containing data from file
     */
-   private Map<String,String> readDataFile(String filename, boolean sortedMap) {
-      Map<String,String> map = sortedMap ? new TreeMap<String,String>()
-                                         : new HashMap<String,String>();
+   private Map<String,String> readDataFile(String filename) {
+      Map<String,String> map;
+
+      if (filename.startsWith("input-")) {
+         map = new TreeMap<String,String>();
+      }
+      else {
+         map = new HashMap<String,String>();
+      }
+
       try {
          BufferedReader in = new BufferedReader(
             new InputStreamReader(this.getClass().getResourceAsStream("/" + filename), "UTF-8"));
@@ -448,19 +454,19 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       if (MENU_YALE.equals(source)) {
          resetStateData();
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_YALE, true);
+         currentChoiceMap = readDataFile(DATAFILE_YALE);
          saveUserPrefs(PREF_KEY_METHOD, MENU_YALE);
       }
       else if (MENU_JYUTPING.equals(source)) {
          resetStateData();
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_JYUTPING, true);
+         currentChoiceMap = readDataFile(DATAFILE_JYUTPING);
          saveUserPrefs(PREF_KEY_METHOD, MENU_JYUTPING);
       }
       else if (MENU_PINYIN.equals(source)) {
          resetStateData();
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_PINYIN, true);
+         currentChoiceMap = readDataFile(DATAFILE_PINYIN);
          saveUserPrefs(PREF_KEY_METHOD, MENU_PINYIN);
       }
       else if (MENU_TRADITIONAL.equals(source)) {
@@ -689,7 +695,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       if (prefs.getProperty(PREF_KEY_METHOD, MENU_YALE).equals(MENU_YALE)) {
          rbMenuItem.setSelected(true);
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_YALE, true);
+         currentChoiceMap = readDataFile(DATAFILE_YALE);
       }
       rbMenuItem.addActionListener(this);
       group.add(rbMenuItem);
@@ -699,7 +705,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       if (prefs.getProperty(PREF_KEY_METHOD, MENU_YALE).equals(MENU_JYUTPING)) {
          rbMenuItem.setSelected(true);
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_JYUTPING, true);
+         currentChoiceMap = readDataFile(DATAFILE_JYUTPING);
       }
       rbMenuItem.addActionListener(this);
       group.add(rbMenuItem);
@@ -709,7 +715,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       if (prefs.getProperty(PREF_KEY_METHOD, MENU_YALE).equals(MENU_PINYIN)) {
          rbMenuItem.setSelected(true);
          currentChoiceMap.clear();
-         currentChoiceMap = readDataFile(DATAFILE_PINYIN, true);
+         currentChoiceMap = readDataFile(DATAFILE_PINYIN);
       }
       rbMenuItem.addActionListener(this);
       group.add(rbMenuItem);

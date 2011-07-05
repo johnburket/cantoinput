@@ -68,7 +68,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
    private static final String APP_NAME = "CantoInput";
    private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.36";
-   private static final String COPYRIGHT_MSG =
+   private static final String AUTHOR_MSG =
       "Author: John Burket\n";
    private static final String CREDITS =
       "This program may be freely distributed, and is\n" +
@@ -502,7 +502,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
          convertSelected(simpTradMap);
       }
       else if (MENU_ABOUT.equals(source)) {
-         JOptionPane.showMessageDialog(null, APP_NAME_AND_VERSION + "\n" + COPYRIGHT_MSG + "\n" + CREDITS);
+         JOptionPane.showMessageDialog(null, APP_NAME_AND_VERSION + "\n" + AUTHOR_MSG + "\n" + CREDITS);
       }
    }
 

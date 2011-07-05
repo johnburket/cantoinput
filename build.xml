@@ -1,7 +1,7 @@
 <project name="CantoInput" default="pkg" basedir=".">
     <description>CantoInput</description>
     <property name="program" value="CantoInput"/>
-    <property name="version" value="1_36"/>
+    <property name="version" value="1_37"/>
     <property name="src" location="src"/>
     <property name="data" location="data"/>
     <property name="dist" location="dist"/>

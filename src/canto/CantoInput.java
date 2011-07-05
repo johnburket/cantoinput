@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 import java.util.Set;
 import java.util.TreeMap;
 import javax.swing.BorderFactory;
@@ -66,7 +67,7 @@ import javax.swing.KeyStroke;
 public class CantoInput extends KeyAdapter implements ActionListener {
 
    private static final String APP_NAME = "CantoInput";
-   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.35";
+   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.36";
    private static final String COPYRIGHT_MSG =
       "Author: John Burket\n";
    private static final String CREDITS =
@@ -207,14 +208,14 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
       if (currentChoiceList != null) {
          if ((e.getKeyCode() == KeyEvent.VK_PAGE_DOWN || e.getKeyCode() == KeyEvent.VK_RIGHT ||
-              e.getKeyCode() == KeyEvent.VK_DOWN || c == '=' || c == '+' || c == '.' ||
-              c == '>' || c == ']' || c == '}') && currentChoiceList.size() > ((currentPageNumber + 1) * 9))
+              e.getKeyCode() == KeyEvent.VK_DOWN || Pattern.matches("[=+.>}\\]]", "" + c))
+              && currentChoiceList.size() > ((currentPageNumber + 1) * 9))
          {
             currentPageNumber++;
          }
          else if ((e.getKeyCode() == KeyEvent.VK_PAGE_UP || e.getKeyCode() == KeyEvent.VK_LEFT ||
-                   e.getKeyCode() == KeyEvent.VK_UP || c == '-' || c == '_' || c == ',' ||
-                   c == '<' || c == '[' || c == '{') && currentPageNumber > 0)
+                   e.getKeyCode() == KeyEvent.VK_UP || Pattern.matches("[-_,<{\\[]", "" + c))
+                   && currentPageNumber > 0)
          {
             currentPageNumber--;
          }
@@ -242,7 +243,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
          return;
       }
 
-      if (c >= 'a' && c <= 'z' && ! e.isAltDown()) {
+      if (Pattern.matches("[a-z]", "" + c) && ! e.isAltDown()) {
          inputTextField.setText(inputTextField.getText() + c);
          currentPageNumber = 0;
          e.consume();
@@ -255,10 +256,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
             e.consume();
          }
       }
-      else if (currentChoiceList != null && (c == '-' || c == '_' || c == '=' || c == '+' ||
-               c == '.' || c == ',' || c == '<' || c == '>' || c == '[' || c == ']' ||
-               c == '{' || c == '}'))
-      {
+      else if (currentChoiceList != null && Pattern.matches("[-_=+.,<>{}\\[\\]]", "" + c)) {
          e.consume();
       }
       else if (punctuationMap.containsKey("" + c)) {
@@ -279,12 +277,12 @@ public class CantoInput extends KeyAdapter implements ActionListener {
          }
       }
 
-      populateCurrentChoiceList(inputTextField.getText());
+      currentChoiceList = createChoiceList(inputTextField.getText());
 
       if (currentChoiceList != null && currentChoiceList.size() > 0) {
          updateMatches();
 
-         if (c >= '1' && c <= '9') {
+         if (Pattern.matches("[1-9]", "" + c)) {
             try {
                String s = currentChoiceList.get((currentPageNumber * 9) + Integer.parseInt("" + c) - 1);
                textArea.insert(s, textArea.getCaretPosition());
@@ -308,18 +306,17 @@ public class CantoInput extends KeyAdapter implements ActionListener {
    }
 
    /**
-    * Populate currentChoiceList with traditional or simplified characters
+    * Create a list of word choices with traditional or simplified characters
     * depending on settings.  All words which start with the input string are
     * placed into the resultant list: exact matches are put at the beginning of
     * the list, followed by partial matches in the order of the closest match.
     */
-   private void populateCurrentChoiceList(String input) {
+   private List<String> createChoiceList(String input) {
       List<String> choiceList = new ArrayList<String>();
       Set<String> dupeSet = new HashSet<String>();
 
       if (input == null || input.equals("")) {
-         currentChoiceList = null;
-         return;
+         return null;
       }
 
       Map<String,String> map = ((TreeMap) currentChoiceMap).subMap(input, input + "zzz");
@@ -335,7 +332,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
          }
       }
 
-      currentChoiceList = choiceList;
+      return choiceList;
    }
 
    /**
@@ -453,19 +450,16 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
       if (MENU_YALE.equals(source)) {
          resetStateData();
-         currentChoiceMap.clear();
          currentChoiceMap = readDataFile(DATAFILE_YALE);
          saveUserPrefs(PREF_KEY_METHOD, MENU_YALE);
       }
       else if (MENU_JYUTPING.equals(source)) {
          resetStateData();
-         currentChoiceMap.clear();
          currentChoiceMap = readDataFile(DATAFILE_JYUTPING);
          saveUserPrefs(PREF_KEY_METHOD, MENU_JYUTPING);
       }
       else if (MENU_PINYIN.equals(source)) {
          resetStateData();
-         currentChoiceMap.clear();
          currentChoiceMap = readDataFile(DATAFILE_PINYIN);
          saveUserPrefs(PREF_KEY_METHOD, MENU_PINYIN);
       }
@@ -694,7 +688,6 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       JRadioButtonMenuItem rbMenuItem = new JRadioButtonMenuItem(MENU_YALE);
       if (prefs.getProperty(PREF_KEY_METHOD, MENU_YALE).equals(MENU_YALE)) {
          rbMenuItem.setSelected(true);
-         currentChoiceMap.clear();
          currentChoiceMap = readDataFile(DATAFILE_YALE);
       }
       rbMenuItem.addActionListener(this);
@@ -704,7 +697,6 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       rbMenuItem = new JRadioButtonMenuItem(MENU_JYUTPING);
       if (prefs.getProperty(PREF_KEY_METHOD, MENU_YALE).equals(MENU_JYUTPING)) {
          rbMenuItem.setSelected(true);
-         currentChoiceMap.clear();
          currentChoiceMap = readDataFile(DATAFILE_JYUTPING);
       }
       rbMenuItem.addActionListener(this);
@@ -714,7 +706,6 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       rbMenuItem = new JRadioButtonMenuItem(MENU_PINYIN);
       if (prefs.getProperty(PREF_KEY_METHOD, MENU_YALE).equals(MENU_PINYIN)) {
          rbMenuItem.setSelected(true);
-         currentChoiceMap.clear();
          currentChoiceMap = readDataFile(DATAFILE_PINYIN);
       }
       rbMenuItem.addActionListener(this);

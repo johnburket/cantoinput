@@ -310,6 +310,9 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * depending on settings.  All words which start with the input string are
     * placed into the resultant list: exact matches are put at the beginning of
     * the list, followed by partial matches in the order of the closest match.
+    *
+    * @param input - Input string to match
+    * @return - List containing matching words
     */
    private List<String> createChoiceList(String input) {
       List<String> choiceList = new ArrayList<String>();
@@ -336,7 +339,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
    }
 
    /**
-    * Reset input/match/pagenum data.
+    * Reset GUI state data (input/match/pagenum/etc).
     */
    private void resetStateData() {
       inputTextField.setText("");
@@ -428,7 +431,10 @@ public class CantoInput extends KeyAdapter implements ActionListener {
    }
 
    /**
-    * Save new user preferences.
+    * Save new user preference setting.
+    *
+    * @param prop - Property key
+    * @param value - Property value
     */
    private void saveUserPrefs(String prop, String value) {
       try {

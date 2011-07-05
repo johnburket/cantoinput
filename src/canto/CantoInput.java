@@ -186,6 +186,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * both keyPressed() and keyTyped() because of Java version compatibility
     * issues.
     */
+   @Override
    public void keyPressed(KeyEvent e) {
       if (! inInputMode) {
          return;
@@ -229,6 +230,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
     * method.  Note that VK_BACK_SPACE needs to be consumed in both keyPressed()
     * and keyTyped() because of Java version compatibility issues.
     */
+   @Override
    public void keyTyped(KeyEvent e) {
       char c = Character.toLowerCase(e.getKeyChar());
 

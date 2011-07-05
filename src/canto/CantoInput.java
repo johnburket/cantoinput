@@ -24,9 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Pattern;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
@@ -67,7 +67,7 @@ import javax.swing.KeyStroke;
 public class CantoInput extends KeyAdapter implements ActionListener {
 
    private static final String APP_NAME = "CantoInput";
-   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.36";
+   private static final String APP_NAME_AND_VERSION = APP_NAME + " 1.37";
    private static final String AUTHOR_MSG =
       "Author: John Burket\n";
    private static final String CREDITS =
@@ -117,6 +117,11 @@ public class CantoInput extends KeyAdapter implements ActionListener {
    private final JTextField matchTextField = new JTextField();
    private final JTextField pageNumTextField = new JTextField();
    private final JTextArea textArea = new JTextArea();
+
+   // Input patterns (traverse the choice list forward or backward)
+   private final Pattern forwardPattern = Pattern.compile("[=+.>}\\]]");
+   private final Pattern backPattern = Pattern.compile("[-_,<{\\[]");
+   private final Pattern forwardOrBackPattern = Pattern.compile("[-_=+.,<>{}\\[\\]]");
 
    // State data
    private int currentPageNumber = 0;
@@ -209,13 +214,13 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
       if (currentChoiceList != null) {
          if ((e.getKeyCode() == KeyEvent.VK_PAGE_DOWN || e.getKeyCode() == KeyEvent.VK_RIGHT ||
-              e.getKeyCode() == KeyEvent.VK_DOWN || Pattern.matches("[=+.>}\\]]", "" + c))
+              e.getKeyCode() == KeyEvent.VK_DOWN || forwardPattern.matcher("" + c).matches())
               && currentChoiceList.size() > ((currentPageNumber + 1) * 9))
          {
             currentPageNumber++;
          }
          else if ((e.getKeyCode() == KeyEvent.VK_PAGE_UP || e.getKeyCode() == KeyEvent.VK_LEFT ||
-                   e.getKeyCode() == KeyEvent.VK_UP || Pattern.matches("[-_,<{\\[]", "" + c))
+                   e.getKeyCode() == KeyEvent.VK_UP || backPattern.matcher("" + c).matches())
                    && currentPageNumber > 0)
          {
             currentPageNumber--;
@@ -245,7 +250,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
          return;
       }
 
-      if (Pattern.matches("[a-z]", "" + c) && ! e.isAltDown()) {
+      if (c >= 'a' && c <= 'z' && ! e.isAltDown()) {
          inputTextField.setText(inputTextField.getText() + c);
          currentPageNumber = 0;
          e.consume();
@@ -258,7 +263,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
             e.consume();
          }
       }
-      else if (currentChoiceList != null && Pattern.matches("[-_=+.,<>{}\\[\\]]", "" + c)) {
+      else if (currentChoiceList != null && forwardOrBackPattern.matcher("" + c).matches()) {
          e.consume();
       }
       else if (punctuationMap.containsKey("" + c)) {
@@ -284,7 +289,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
       if (currentChoiceList != null && currentChoiceList.size() > 0) {
          updateMatches();
 
-         if (Pattern.matches("[1-9]", "" + c)) {
+         if (c >= '1' && c <= '9') {
             try {
                String s = currentChoiceList.get((currentPageNumber * 9) + Integer.parseInt("" + c) - 1);
                textArea.insert(s, textArea.getCaretPosition());

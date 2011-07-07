@@ -199,13 +199,7 @@ public class CantoInput extends KeyAdapter implements ActionListener {
 
       char c = Character.toLowerCase(e.getKeyChar());
 
-      if (c == KeyEvent.VK_BACK_SPACE) {
-         String s = inputTextField.getText();
-         if (s != null && ! s.equals("")) {
-            e.consume();
-         }
-      }
-      else if (c == KeyEvent.VK_ENTER) {
+      if (c == KeyEvent.VK_BACK_SPACE || c == KeyEvent.VK_ENTER) {
          String s = inputTextField.getText();
          if (s != null && ! s.equals("")) {
             e.consume();

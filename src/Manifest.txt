@@ -1,2 +1,2 @@
-Main-Class: canto.CantoInput
+Main-Class: cantoinput.gui.CantoInput
 
